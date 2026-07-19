@@ -260,6 +260,7 @@ div[data-testid="stColumn"]:nth-of-type(2) {
 user_email = st.user.email
 user_name = st.user.name
 
+init_db() # Ensure tables exist before querying
 sess = open_session()
 db_user = sess.query(User).filter_by(email=user_email).first()
 sess.close()
