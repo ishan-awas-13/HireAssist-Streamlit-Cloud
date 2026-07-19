@@ -32,7 +32,7 @@ try:
     ob_logo = f'<img src="data:image/png;base64,{ob_logo_b64}" style="height:44px;width:auto;object-fit:contain;vertical-align:text-bottom;margin-right:14px;">'
 except Exception:
     page_icon = "⬡"
-    hero_logo = "⬡ HireAssist AI"
+    hero_logo = "⬡"
     login_logo = "⬡ "
     ob_logo = "⬡ "
 
