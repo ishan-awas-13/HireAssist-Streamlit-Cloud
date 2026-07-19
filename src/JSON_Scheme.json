@@ -1,0 +1,58 @@
+{
+  "candidate_profile": {
+    "personal_information": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "johndoe@email.com",
+      "phone_number": "+91-1234567890",
+      "location": "Bangalore, Karnataka, India",
+      "linkedin_url": "https://linkedin.com/in/johndoe",
+      "github_url": "https://github.com/johndoe",
+      "portfolio_url": null
+    },
+    "professional_summary": "Highly motivated software engineering intern with experience in Python and data pipelines...",
+    "skills": {
+      "programming_languages": ["Python", "JavaScript", "SQL"],
+      "frameworks_and_tools": ["Git", "Docker", "React", "REST API"],
+      "soft_skills": ["Technical Writing", "Agile Methodology"]
+    },
+    "work_experience": [
+      {
+        "company_name": "AI Tech Corp",
+        "job_title": "Software Engineering Intern",
+        "location": "Remote",
+        "start_date": "2025-06",
+        "end_date": null,
+        "is_current": true,
+        "responsibilities": [
+          "Developed a resume parser utility using Python and LLMs.",
+          "Reduced manual data entry time by 40%."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "institution_name": "University of Technology and Science",
+        "degree": "Bachelor of Science",
+        "major": "Computer Science",
+        "start_date": "2024-09",
+        "end_date": "2028-05",
+        "gpa": "8.9"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "AWS Certified Cloud Practitioner",
+        "issuing_organization": "Amazon Web Services",
+        "issue_date": "2024-11"
+      }
+    ],
+    "projects": [
+      {
+        "project_name": "Automated Deployment Script",
+        "description": "A bash script to automate Docker container deployment.",
+        "technologies_used": ["Bash", "Docker", "Linux"]
+      }
+    ]
+  }
+}

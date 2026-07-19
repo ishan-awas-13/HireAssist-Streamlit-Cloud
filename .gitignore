@@ -1,0 +1,55 @@
+# Ignore the local virtual environment folder
+venv/
+
+# Ignore local environment credential secrets
+.env
+
+# Ignore Python compilation cache folders
+__pycache__/
+*.pyc
+
+#ignore the test_streamlit.py file
+test_streamlit.py
+
+#Ignore the Hosting Alternatives Readme file
+hosting_alternatives.md
+
+#Ignore the flaws_to_fix.md file
+flaws_to_fix.md
+
+#Ignore the Agent Summary Handoff md
+AGENT_HANDOFF_MAIN.md
+
+#Ignore the example1.py file
+tester_file.py
+
+#Ignore the data_flow_explainer file
+data_flow_explainer.md
+
+#ignore the presentation checklist
+presentation_checklist.md
+
+#ignore the project name file
+project_name.txt
+
+#ignore the recuiter notes feature plan markdown
+recruiter_notes_feature_plan.md
+
+#ignore the old code dump file 
+Resume_Parser_Code_Dump.txt
+
+#ignore the phase 2 plan markdown file
+phase2_linkedin_logs_plan.md
+
+#ignore sample color combinations file
+sample_color_combinations.txt
+
+#ingore the google auth secrets
+secrets.toml
+
+#ignore the logo image
+logo_img_icon_only.png
+logo2_img_no_text_lighter.png
+logo2_img_with_text_horizontal.png
+logo2_img_with_text.png
+logo2_img_no_text.png

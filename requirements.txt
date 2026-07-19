@@ -1,0 +1,11 @@
+altair
+pandas
+streamlit
+pydantic
+pypdf
+python-docx
+openai
+ollama
+python-dotenv
+sqlalchemy
+psycopg2-binary

@@ -1,0 +1,185 @@
+[theme]
+# Light base — inherits Streamlit's light defaults then overrides below
+base = "light"
+
+# Rich dark chocolate — warm and grounding as the accent
+primaryColor = "#690e0eff"
+
+# Warm parchment — like kraft paper, light and immediately warm
+backgroundColor = "#F5EAD0"
+
+# Cardboard tan — clearly distinct from background, like a manila folder
+secondaryBackgroundColor = "#E0CBA8"
+
+# Deep cocoa brown — warmer and softer than pure black
+textColor = "#2A1407"
+
+# Modern sans-serif font
+font = "SpaceGrotesk"
+
+
+
+[server]
+#Disables the cross-origin and request forgery locks inside the cloud container
+enableCORS = false
+enableXsrfProtection = false
+enableStaticServing = true
+
+
+# ── Custom Font Face Definitions ─────────────────────────────────────────────
+
+[[theme.fontFaces]]
+family = "MadeInfinity"
+url = "app/static/MADEINFINITY-PERSONALUSE-Regular.otf"
+style = "normal"
+weight = 400
+
+[[theme.fontFaces]]
+family = "MadeInfinity"
+url = "app/static/MADEINFINITY-PERSONALUSE-Medium.otf"
+style = "normal"
+weight = 500
+
+[[theme.fontFaces]]
+family = "MadeInfinity"
+url = "app/static/MADEINFINITY-PERSONALUSE-Light.otf"
+style = "normal"
+weight = 300
+
+[[theme.fontFaces]]
+family = "MadeInfinity"
+url = "app/static/MADEINFINITY-PERSONALUSE-Thin.otf"
+style = "normal"
+weight = 100
+
+[[theme.fontFaces]]
+family = "MadeInfinity"
+url = "app/static/MADEINFINITY-PERSONALUSE-Black.otf"
+style = "normal"
+weight = 900
+
+
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-ExtraLight.ttf"
+style = "normal"
+weight = 200
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-Light.ttf"
+style = "normal"
+weight = 300
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-Regular.ttf"
+style = "normal"
+weight = 400
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-Medium.ttf"
+style = "normal"
+weight = 500
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-SemiBold.ttf"
+style = "normal"
+weight = 600
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-Bold.ttf"
+style = "normal"
+weight = 700
+
+[[theme.fontFaces]]
+family = "TRTMontBrozDemo"
+url = "app/static/TRTMontBrozDemo-ExtraBold.ttf"
+style = "normal"
+weight = 800
+
+# ── Ubuntu (Google Fonts CDN) ─────────────────────────────────────────────────
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzTtw.ttf"
+style = "normal"
+weight = 300
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftWyI.ttf"
+style = "italic"
+weight = 300
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgo6eA.ttf"
+style = "normal"
+weight = 400
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKeg7z.ttf"
+style = "italic"
+weight = 400
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3Ttw.ttf"
+style = "normal"
+weight = 500
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtGyI.ttf"
+style = "italic"
+weight = 500
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvTtw.ttf"
+style = "normal"
+weight = 700
+
+[[theme.fontFaces]]
+family = "Ubuntu"
+url = "https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPsmyI.ttf"
+style = "italic"
+weight = 700
+
+# ── Space Grotesk (Google Fonts CDN) ─────────────────────────────────────────
+
+[[theme.fontFaces]]
+family = "SpaceGrotesk"
+url = "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj62UUsj.ttf"
+style = "normal"
+weight = 300
+
+[[theme.fontFaces]]
+family = "SpaceGrotesk"
+url = "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj7oUUsj.ttf"
+style = "normal"
+weight = 400
+
+[[theme.fontFaces]]
+family = "SpaceGrotesk"
+url = "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj7aUUsj.ttf"
+style = "normal"
+weight = 500
+
+[[theme.fontFaces]]
+family = "SpaceGrotesk"
+url = "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj42Vksj.ttf"
+style = "normal"
+weight = 600
+
+[[theme.fontFaces]]
+family = "SpaceGrotesk"
+url = "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gOoraIAEj4PVksj.ttf"
+style = "normal"
+weight = 700
