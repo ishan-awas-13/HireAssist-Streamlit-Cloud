@@ -27,22 +27,29 @@ This repository houses the **Streamlit Community Cloud** deployment version of t
 Streamlit is notoriously rigid when it comes to custom frontend design. To create a premium, production-grade application, HireAssist AI employs several advanced workarounds to break out of Streamlit's default constraints:
 
 ### 1. Edge-to-Edge Layouts & CSS Injection
-Streamlit naturally forces padding and margins that prevent true full-screen designs. We utilize aggressive `st.markdown(unsafe_allow_html=True)` CSS injection to override the underlying React DOM. 
+
+Streamlit naturally forces padding and margins that prevent true full-screen designs. We utilize aggressive `st.markdown(unsafe_allow_html=True)` CSS injection to override the underlying React DOM.
+
 - **The Login & Onboarding Screens** utilize zero-padding block containers, allowing for modern, split-screen gradient layouts that feel like a native web app, completely hiding the standard Streamlit UI.
 
 ### 2. The "Gate" Authentication System
+
 Streamlit's multi-page architecture typically exposes all pages in the sidebar immediately. HireAssist uses a strict, programmatic **Gate System** inside the entry point (`app.py`):
+
 - **Gate 1:** `st.login` OAuth verification. If unauthenticated, the sidebar, header, and top padding are destroyed via CSS, forcing the user into the custom login landing page.
 - **Gate 2:** Database verification. If a user logs in but has no database record, they are locked into an Onboarding Screen to select their role.
 - **Gate 3:** Only once the session state and database confirm authorization is the standard multi-page sidebar restored.
 
 ### 3. Raw HTML/CSS Component Wrappers
+
 Rather than relying on basic `st.info` or `st.metric` boxes, the Evaluation Dashboard and Home pages render custom HTML strings wrapped in Streamlit markdown. This allows for:
+
 - Glassmorphism effects and hover-state animations.
 - Custom status pills, flexbox grids, and timeline-style recruiter remark feeds.
 - Dynamic Base64 image injection for branding across all pages without relying on external image hosting.
 
 ### 4. Bulletproof State Synchronization
+
 Because Streamlit completely reruns the script upon every user interaction, managing complex state (like parsing multiple resumes in a batch while navigating away) is incredibly difficult. We heavily leverage `st.session_state` combined with immediate SQLAlchemy commits to ensure that no parsing progress, uploaded file, or evaluation score is ever lost during a page rerun.
 
 ---
@@ -85,6 +92,7 @@ developer_email = "your_admin_email@gmail.com"
 ```
 
 Once secrets are configured, simply install the requirements and run the app:
+
 ```bash
 pip install -r requirements.txt
 streamlit run src/app.py
