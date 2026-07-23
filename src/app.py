@@ -269,7 +269,7 @@ if not db_user:
     _hide_sidebar()
 
 
-    ROLE_PRESETS = ["Recruiter", "Hiring Manager", "Interviewer", "Admin", "Other (specify below)"]
+    ROLE_PRESETS = ["Recruiter", "Hiring Manager", "Interviewer", "Other (specify below)"]
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # CSS for the role selection page if its a new account — split panel layout
@@ -479,6 +479,8 @@ div[data-testid="stColumn"]:nth-of-type(2) {
         if st.button("Confirm & Enter HireAssist AI", type="primary", use_container_width=True, key="onboard_confirm_btn"):
             if not final_role:
                 st.error("Please enter a role before continuing.")
+            elif final_role.strip().lower() == "admin":
+                st.error("🚫 The Admin role cannot be self-assigned. Please select a functional role (Recruiter, Hiring Manager, or Interviewer).")
             else:
                 sess = open_session()
                 try:
@@ -504,17 +506,19 @@ div[data-testid="stColumn"]:nth-of-type(2) {
 # ═══════════════════════════════════════════════════════════════════════════════
 # ALL GATES PASSED — Fully authenticated returning user → Home Dashboard
 # ═══════════════════════════════════════════════════════════════════════════════
+DEVELOPER_EMAIL = st.secrets.get("admin", {}).get("developer_email", "")
+
 st.session_state.auth_verified      = True
 st.session_state.current_user_email = user_email
 st.session_state.current_user_name  = db_user.name or user_name
-st.session_state.current_user_role  = db_user.role
+if DEVELOPER_EMAIL and user_email == DEVELOPER_EMAIL:
+    st.session_state.current_user_role = "Admin"
+else:
+    st.session_state.current_user_role = db_user.role
 
 import utils
 utils.inject_global_css()
 utils.render_sidebar_profile()
-
-# ── Developer-only Admin Panel button (sidebar, home page only) ───────────────
-DEVELOPER_EMAIL = st.secrets.get("admin", {}).get("developer_email", "")
 
     
 
