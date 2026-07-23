@@ -269,7 +269,7 @@ if not db_user:
     _hide_sidebar()
 
 
-    ROLE_PRESETS = ["Recruiter", "Hiring Manager", "Admin", "Other (specify below)"]
+    ROLE_PRESETS = ["Recruiter", "Hiring Manager", "Interviewer", "Admin", "Other (specify below)"]
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # CSS for the role selection page if its a new account — split panel layout

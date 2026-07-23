@@ -172,70 +172,74 @@ if "ed_remarks_cache"          not in st.session_state:
     #st.divider()
 
 with st.sidebar:
-
+    is_recruiter_or_admin = utils.has_role(["Recruiter"])
 
     st.markdown("### Scoring Criteria (Factors)")
-    st.caption("Add / Adjust / Remove factors.")
+    if is_recruiter_or_admin:
+        st.caption("Add / Adjust / Remove factors.")
 
-    factor_to_remove = None
-    for i, factor in enumerate(st.session_state.ed_factors or []):
-        col_name, col_btn = st.columns([4, 2])
-        with col_name:
-            factor["threshold"] = st.slider(
-                label=f"{factor['name']}",
-                min_value=0, max_value=100,
-                value=factor["threshold"], step=5,
-                key=f"ed_threshold_{factor['name']}",
-                help=f"Minimum {factor['name']} score required to pass."
-            )
-            st.caption(f"Min: {factor['threshold']}%")
-        with col_btn:
-            if st.button("❌", key=f"ed_remove_factor_{i}",
-                         help=f"Remove '{factor['name']}'", type="primary",
-                         use_container_width=True):
-                factor_to_remove = i
+        factor_to_remove = None
+        for i, factor in enumerate(st.session_state.ed_factors or []):
+            col_name, col_btn = st.columns([4, 2])
+            with col_name:
+                factor["threshold"] = st.slider(
+                    label=f"{factor['name']}",
+                    min_value=0, max_value=100,
+                    value=factor["threshold"], step=5,
+                    key=f"ed_threshold_{factor['name']}",
+                    help=f"Minimum {factor['name']} score required to pass."
+                )
+                st.caption(f"Min: {factor['threshold']}%")
+            with col_btn:
+                if st.button("❌", key=f"ed_remove_factor_{i}",
+                             help=f"Remove '{factor['name']}'", type="primary",
+                             use_container_width=True):
+                    factor_to_remove = i
 
-    if factor_to_remove is not None:
-        st.session_state.ed_factors.pop(factor_to_remove)
-        st.rerun()
-
-    st.divider()
-    st.markdown("### ➕ Add Factor")
-    new_factor_name = st.text_input("Factor name", placeholder="e.g. Communication Skills", key="ed_new_factor_name_input")
-    new_factor_threshold = st.slider("Default threshold", 0, 100, 60, 5, key="ed_new_factor_threshold_input")
-    if st.button("Add Factor", use_container_width=True, key="ed_add_factor_btn", type="primary"):
-        name = new_factor_name.strip()
-        existing = [f["name"].lower() for f in st.session_state.ed_factors]
-        if not name:
-            st.warning("Enter a factor name first.")
-        elif name.lower() in existing:
-            st.warning(f"'{name}' already exists.")
-        else:
-            st.session_state.ed_factors.append({"name": name, "threshold": new_factor_threshold})
+        if factor_to_remove is not None:
+            st.session_state.ed_factors.pop(factor_to_remove)
             st.rerun()
 
-    st.divider()
-    if st.button("Save Workspace Criteria", use_container_width=True, type="primary"):
-        if st.session_state.ed_selected_job_id:
-            try:
-                session = open_session()
-                # Direct UPDATE query bypasses all SQLAlchemy ORM JSON state-tracking issues
-                rows_updated = session.query(JobPost).filter_by(id=st.session_state.ed_selected_job_id).update({
-                    "eval_factors": copy.deepcopy(st.session_state.ed_factors)
-                })
-                session.commit()
-                
-                if rows_updated > 0:
-                    st.toast("✅ Workspace factors saved successfully!")
-                else:
-                    st.toast("⚠️ Workspace found, but no changes detected.")
-            except Exception as e:
-                st.error(f"Failed to save: {e}")
-            finally:
-                if 'session' in locals():
-                    session.close()
-        else:
-            st.warning("No workspace selected to save.")
+        st.divider()
+        st.markdown("### ➕ Add Factor")
+        new_factor_name = st.text_input("Factor name", placeholder="e.g. Communication Skills", key="ed_new_factor_name_input")
+        new_factor_threshold = st.slider("Default threshold", 0, 100, 60, 5, key="ed_new_factor_threshold_input")
+        if st.button("Add Factor", use_container_width=True, key="ed_add_factor_btn", type="primary"):
+            name = new_factor_name.strip()
+            existing = [f["name"].lower() for f in st.session_state.ed_factors]
+            if not name:
+                st.warning("Enter a factor name first.")
+            elif name.lower() in existing:
+                st.warning(f"'{name}' already exists.")
+            else:
+                st.session_state.ed_factors.append({"name": name, "threshold": new_factor_threshold})
+                st.rerun()
+
+        st.divider()
+        if st.button("Save Workspace Criteria", use_container_width=True, type="primary"):
+            if st.session_state.ed_selected_job_id:
+                try:
+                    session = open_session()
+                    rows_updated = session.query(JobPost).filter_by(id=st.session_state.ed_selected_job_id).update({
+                        "eval_factors": copy.deepcopy(st.session_state.ed_factors)
+                    })
+                    session.commit()
+                    
+                    if rows_updated > 0:
+                        st.toast("✅ Workspace factors saved successfully!")
+                    else:
+                        st.toast("⚠️ Workspace found, but no changes detected.")
+                except Exception as e:
+                    st.error(f"Failed to save: {e}")
+                finally:
+                    if 'session' in locals():
+                        session.close()
+            else:
+                st.warning("No workspace selected to save.")
+    else:
+        st.caption("🔒 *Read-Only View* — Factor thresholds managed by Recruiting Team.")
+        for factor in (st.session_state.ed_factors or []):
+            st.markdown(f"**{factor['name']}**: ≥`{factor['threshold']}%` passing score")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -328,30 +332,30 @@ with ctrl_col1:
 
 with ctrl_col2:
     st.subheader("Mandatory Skills")
-    #st.caption("Let the model read your job description and identify what's truly required.")
 
-    if st.button(
-        "Detect Mandatory Skills",
-        disabled=not job_description.strip(),
-        key="ed_extract_skills_btn",
-        help="Analyzes your job description and extracts required skills automatically.",
-        type="primary"
-    ):
-        with st.spinner("Analysing job description…"):
-            try:
-                skills = extract_mandatory_skills(current_model, job_description)
-                st.session_state.ed_extracted_skills = skills
-                st.session_state.ed_skills_confirmed = False
-                st.session_state.ed_skills_editing   = True
-            except Exception as e:
-                st.error(f"Skill extraction failed: {e}")
+    if is_recruiter_or_admin:
+        if st.button(
+            "Detect Mandatory Skills",
+            disabled=not job_description.strip(),
+            key="ed_extract_skills_btn",
+            help="Analyzes your job description and extracts required skills automatically.",
+            type="primary"
+        ):
+            with st.spinner("Analysing job description…"):
+                try:
+                    skills = extract_mandatory_skills(current_model, job_description)
+                    st.session_state.ed_extracted_skills = skills
+                    st.session_state.ed_skills_confirmed = False
+                    st.session_state.ed_skills_editing   = True
+                except Exception as e:
+                    st.error(f"Skill extraction failed: {e}")
 
     # Seed from saved workspace skills if none detected yet
     if not st.session_state.ed_extracted_skills and saved_skills:
         st.session_state.ed_extracted_skills = saved_skills
 
     if st.session_state.ed_extracted_skills:
-        if st.session_state.ed_skills_editing:
+        if is_recruiter_or_admin and st.session_state.ed_skills_editing:
             edited = st.text_area(
                 "Edit detected skills (one per line):",
                 value="\n".join(st.session_state.ed_extracted_skills),
@@ -382,11 +386,15 @@ with ctrl_col2:
         else:
             skills_md = "   ".join(f"`{s}`" for s in st.session_state.ed_extracted_skills)
             st.markdown(f"**Saved requirements:** {skills_md}")
-            if st.button("✏️ Edit Skills", key="ed_edit_skills_btn", use_container_width=True):
-                st.session_state.ed_skills_editing = True
-                st.rerun()
+            if is_recruiter_or_admin:
+                if st.button("✏️ Edit Skills", key="ed_edit_skills_btn", use_container_width=True):
+                    st.session_state.ed_skills_editing = True
+                    st.rerun()
     else:
-        st.caption("Paste a job description above and click **Detect Mandatory Skills** to auto-extract.")
+        if is_recruiter_or_admin:
+            st.caption("Paste a job description above and click **Detect Mandatory Skills** to auto-extract.")
+        else:
+            st.caption("🔒 Mandatory skills setup is restricted to Recruiters and Admins.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -614,46 +622,51 @@ with tab_scored:
         st.subheader("Score & Evaluate Candidates")
         st.caption("Calculate fit scores based on the Job Description and Key Skills above.")
 
-        if st.button("Score All Candidates", type="primary", key="ed_score_btn"):
-            skills_list = st.session_state.ed_extracted_skills
-            progress_bar = st.progress(0.0)
-            status_text  = st.empty()
-            total_valid  = len(candidates_data)
+        if is_recruiter_or_admin:
+            can_score = True
+            if st.button("Score All Candidates", type="primary", key="ed_score_btn"):
+                skills_list = st.session_state.ed_extracted_skills
+                progress_bar = st.progress(0.0)
+                status_text  = st.empty()
+                total_valid  = len(candidates_data)
 
-            for idx, cd in enumerate(candidates_data):
-                status_text.info(f"Evaluating {cd['filename']} ({idx+1}/{total_valid})…")
-                try:
-                    scores = score_candidate_suitability(
-                        model_name      = current_model,
-                        job_description = job_description,
-                        key_skills      = skills_list,
-                        resume_json     = cd["profile_json"],
-                        eval_factors    = st.session_state.ed_factors
-                    )
-                    cd["scores_json"]   = scores
-                    cd["overall_score"] = scores.get("overall_score", None)
-                    st.session_state.ed_scored_cache[cd["id"]] = scores
-
-                    session = open_session()
+                for idx, cd in enumerate(candidates_data):
+                    status_text.info(f"Evaluating {cd['filename']} ({idx+1}/{total_valid})…")
                     try:
-                        row = session.query(Candidate).filter_by(id=cd["id"]).first()
-                        row.scores_json   = scores
-                        row.overall_score = scores.get("overall_score", None)
-                        row.scored_at     = datetime.utcnow()
-                        session.commit()
-                    except Exception:
-                        session.rollback()
-                    finally:
-                        session.close()
+                        scores = score_candidate_suitability(
+                            model_name      = current_model,
+                            job_description = job_description,
+                            key_skills      = skills_list,
+                            resume_json     = cd["profile_json"],
+                            eval_factors    = st.session_state.ed_factors
+                        )
+                        cd["scores_json"]   = scores
+                        cd["overall_score"] = scores.get("overall_score", None)
+                        st.session_state.ed_scored_cache[cd["id"]] = scores
 
-                except Exception as e:
-                    st.error(f"Failed to score {cd['filename']}: {e}")
-                progress_bar.progress((idx + 1) / total_valid)
+                        session = open_session()
+                        try:
+                            row = session.query(Candidate).filter_by(id=cd["id"]).first()
+                            row.scores_json   = scores
+                            row.overall_score = scores.get("overall_score", None)
+                            row.scored_at     = datetime.utcnow()
+                            session.commit()
+                        except Exception:
+                            session.rollback()
+                        finally:
+                            session.close()
 
-            status_text.success("Scoring completed!")
-            time.sleep(1)
-            status_text.empty()
-            progress_bar.empty()
+                    except Exception as e:
+                        st.error(f"Failed to score {cd['filename']}: {e}")
+                    progress_bar.progress((idx + 1) / total_valid)
+
+                status_text.success("Scoring completed!")
+                time.sleep(1)
+                status_text.empty()
+                progress_bar.empty()
+        else:
+            st.button("Score All Candidates", disabled=True, key="ed_score_btn_disabled", help="AI Candidate Scoring is restricted to Recruiters & Admins.")
+            st.caption("🔒 *View-Only Mode* — Candidate scoring is executed by the Recruiting Team.")
 
         st.divider()
 
@@ -786,17 +799,27 @@ with tab_scored:
                     st.markdown("#### Evaluation Summary")
                     st.info(scores.get("summary", "No evaluation summary returned by the model."))
 
-                # ── Recruiter Remarks Timeline ────────────────────────────────
+                # ── Candidate Activity Timeline ────────────────────────────────
                 st.write("")
-                st.markdown("#### Recruiter Activity Timeline")
+                st.markdown("#### Candidate Activity Timeline")
                 
                 left_col, right_col = st.columns([2, 3])
                 
                 with left_col:
+                    current_role = st.session_state.get("current_user_role", "Recruiter")
+                    if current_role == "Interviewer":
+                        form_label = "Add Interview Feedback & Rating:"
+                        form_placeholder = "Submit technical interview notes, candidate rating (e.g. 4/5), and recommendations..."
+                        btn_label = "Submit Interview Feedback"
+                    else:
+                        form_label = "Add note / update candidate status:"
+                        form_placeholder = "Write a note about this candidate..."
+                        btn_label = "Add Comment"
+
                     # Add new comment form
                     with st.form(key=f"ed_new_comment_form_{cd['id']}", clear_on_submit=True):
-                        new_text = st.text_area(label= "Add note / update candidate status:", height=220, placeholder="Write a note about this candidate...")
-                        submitted = st.form_submit_button("Add Comment", use_container_width=True, type = "primary")
+                        new_text = st.text_area(label=form_label, height=220, placeholder=form_placeholder)
+                        submitted = st.form_submit_button(btn_label, use_container_width=True, type="primary")
                         if submitted and new_text.strip():
                             session = open_session()
                             try:

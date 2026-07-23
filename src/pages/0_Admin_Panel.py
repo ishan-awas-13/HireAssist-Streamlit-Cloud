@@ -113,6 +113,8 @@ div.block-container, [data-testid="stAppViewBlockContainer"] {
 }
 .role-badge.admin  { background: #1a1a2e; color: #e0e8ff; }
 .role-badge.recruiter { background: #2e7d32; color: #fff; }
+.role-badge.hiring-manager { background: #8e24aa; color: #fff; }
+.role-badge.interviewer { background: #e65100; color: #fff; }
 .dev-shield {
     font-size: 0.72rem;
     color: #7a5c3a;
@@ -208,7 +210,7 @@ if not users_data:
 else:
     for user in users_data:
         is_dev = user["email"] == DEVELOPER_EMAIL
-        role_class = "admin" if user["role"].lower() == "admin" else "recruiter" if user["role"].lower() == "recruiter" else ""
+        role_class = user["role"].lower().replace(" ", "-")
 
         col_name, col_email, col_role, col_date, col_action = st.columns([2, 2, 1.2, 1.5, 0.8])
 
