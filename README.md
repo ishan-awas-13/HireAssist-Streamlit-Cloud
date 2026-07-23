@@ -1,4 +1,4 @@
-# ⬡ HireAssist AI
+# <img width="60" height="37" alt="logo2_img_no_text_lighter_small_75" src="https://github.com/user-attachments/assets/8b58013d-9d31-479a-b622-037c731204c5" />HireAssist AI
 
 ![HireAssist Banner](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
