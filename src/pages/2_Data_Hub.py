@@ -22,8 +22,9 @@ from datetime import datetime
 from sqlalchemy.exc import OperationalError
 import utils
 
-# Require user login before loading the page
+# Require user login and Recruiter role before loading the page
 utils.require_login()
+utils.enforce_role(["Recruiter"], page_name="File Upload & AI Resume Parsing")
 
 from database import init_db, open_session, JobPost, Candidate
 from extractor import get_clean_resume_text
@@ -314,9 +315,9 @@ if run_btn and uploaded_files:
         )
 
     overall_progress.progress(1.0, text="✅ All resumes ingested!")
-    st.balloons()
+    
     st.info("Head to **Page 3** to score and review candidates.")
-    st.page_link("pages/3_Evaluation_Dashboard.py", label="Open Evaluation Dashboard →", icon="📊")
+    st.page_link("pages/3_Evaluation_Dashboard.py", label="Open Evaluation Dashboard →")
 
 # ── Recent candidates for active workspace ────────────────────────────────────
 st.divider()

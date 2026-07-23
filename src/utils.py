@@ -13,6 +13,44 @@ def require_login():
     else:
         render_sidebar_profile()
 
+def has_role(allowed_roles: list) -> bool:
+    import streamlit as st
+    user_email = getattr(st.user, "email", "")
+    DEVELOPER_EMAIL = st.secrets.get("admin", {}).get("developer_email", "")
+    user_role = st.session_state.get("current_user_role", "Hiring Manager")
+
+    # Developer email or Admin role always possesses unrestricted access
+    if user_email == DEVELOPER_EMAIL or user_role == "Admin":
+        return True
+    
+    return user_role in allowed_roles
+
+def enforce_role(allowed_roles: list, page_name: str = "this feature"):
+    import streamlit as st
+    if not has_role(allowed_roles):
+        inject_global_css()
+        render_sidebar_profile()
+        user_role = st.session_state.get("current_user_role", "Hiring Manager")
+        allowed_str = ", ".join(allowed_roles)
+        st.markdown(f"""
+        <div style="background: #FFFDF7; border: 2px solid #690e0e; border-radius: 14px; padding: 36px 30px; margin-top: 40px; text-align: center; box-shadow: 0 4px 20px rgba(105,14,14,0.15);">
+            <div style="font-size: 2.8rem; margin-bottom: 10px;">🔒</div>
+            <h2 style="color: #690e0e; margin-bottom: 12px; font-weight: 800;">Access Restricted</h2>
+            <p style="font-size: 1.05rem; color: #2A1407; line-height: 1.6; max-width: 600px; margin: 0 auto 20px auto;">
+                You are currently signed in as <strong>{st.session_state.get("current_user_name", "User")}</strong> with the role <span style="background:#690e0e; color:#F5EAD0; padding:2px 8px; border-radius:10px; font-size:0.82rem; font-weight:700; text-transform:uppercase;">{user_role}</span>.
+            </p>
+            <p style="font-size: 0.95rem; color: #7a5c3a; line-height: 1.5; max-width: 550px; margin: 0 auto;">
+                <em>{page_name}</em> is reserved for <strong>{allowed_str}</strong> or <strong>Admin</strong> users.
+            </p>
+            <hr style="border: none; border-top: 1px solid #E5D0A0; margin: 25px auto; width: 60%;">
+            <p style="font-size: 0.84rem; color: #888;">
+                Need access? Please contact your platform administrator to update your role.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        render_hidden_logout_button()
+        st.stop()
+
 def render_sidebar_profile():
     import streamlit as st
     import streamlit.components.v1 as components
@@ -197,11 +235,10 @@ def render_sidebar_profile():
 def inject_global_css():
     import streamlit as st
 
-    # Check if the current user is the developer
-    DEVELOPER_EMAIL = st.secrets.get("admin", {}).get("developer_email", "")
-    is_admin = getattr(st.user, "email", None) == DEVELOPER_EMAIL
+    # Check if the current user is an Admin (either via role or developer email)
+    is_admin = has_role(["Admin"])
 
-    # If they are NOT the admin, hide the Admin Panel link from the sidebar nav
+    # If they are NOT an admin, hide the Admin Panel link from the sidebar nav
     hide_admin_css = ""
     if not is_admin:
         hide_admin_css = """

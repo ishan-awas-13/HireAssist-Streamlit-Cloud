@@ -25,8 +25,9 @@ from datetime import datetime
 from sqlalchemy.exc import OperationalError
 import utils
 
-# Require user login before loading the page
+# Require user login and Recruiter role before loading the page
 utils.require_login()
+utils.enforce_role(["Recruiter"], page_name="Creating & Editing Job Workspaces")
 
 from database import init_db, open_session, JobPost
 

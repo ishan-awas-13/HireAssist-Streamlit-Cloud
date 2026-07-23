@@ -678,14 +678,23 @@ st.markdown("""
 # ── Navigation CTA ────────────────────────────────────────────────────────────
 st.markdown("### Jump to a Page")
 cta1, cta2, cta3 = st.columns(3)
+is_recruiter_or_admin = utils.has_role(["Recruiter"])
+
 with cta1:
-    if st.button("Create Job Post", type="primary", use_container_width=True):
+    badge_text = "Recruiter / Admin" if is_recruiter_or_admin else "🔒 Recruiter Only"
+    st.caption(f"**Workspace Setup** &nbsp;&middot;&nbsp; `{badge_text}`")
+    if st.button("Create Job Post", type="primary", use_container_width=True, help="Create a new job posting workspace"):
         st.switch_page("pages/1_Job_Post_Creator.py")
+
 with cta2:
-    if st.button("Data Hub & File Upload", type="primary", use_container_width=True):
+    badge_text = "Recruiter / Admin" if is_recruiter_or_admin else "🔒 Recruiter Only"
+    st.caption(f"**Resume Ingestion** &nbsp;&middot;&nbsp; `{badge_text}`")
+    if st.button("Data Hub & File Upload", type="primary", use_container_width=True, help="Upload and parse candidate resumes"):
         st.switch_page("pages/2_Data_Hub.py")
+
 with cta3:
-    if st.button("Evaluation Dashboard", type="primary", use_container_width=True):
+    st.caption("**Candidate Review** &nbsp;&middot;&nbsp; `All Roles` ")
+    if st.button("Evaluation Dashboard", type="primary", use_container_width=True, help="Review candidate scores, remarks, and shortlists"):
         st.switch_page("pages/3_Evaluation_Dashboard.py")
 
 # Render hidden logout button at the absolute bottom to prevent top spacing

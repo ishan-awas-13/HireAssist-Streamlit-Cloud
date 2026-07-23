@@ -25,10 +25,11 @@ if not st.user.is_logged_in:
     st.switch_page("app.py")
     st.stop()
 
-# Gate 2: Must be the developer account — hard-check against live auth, NOT session state
-if not DEVELOPER_EMAIL or st.user.email != DEVELOPER_EMAIL:
+# Gate 2: Must be an Admin account (role == 'Admin' or matching developer_email)
+from utils import has_role
+if not has_role(["Admin"]):
     st.set_page_config(page_title="Access Denied", page_icon="🚫", layout="centered")
-    st.error("🚫 Access Denied. This page is restricted to the platform administrator.")
+    st.error("🚫 Access Denied. This page is restricted to platform administrators.")
     st.stop()
 
 # ── Page Config (only set if authorized) ──────────────────────────────────────
