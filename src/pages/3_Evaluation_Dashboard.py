@@ -833,7 +833,7 @@ with tab_scored:
                                     author_name=user_name,
                                     author_role=user_role,
                                     comment_text=new_text.strip(),
-                                    created_at=datetime.now()
+                                    created_at=datetime.utcnow()
                                 )
                                 session.add(new_comment)
                                 session.commit()
@@ -873,8 +873,11 @@ with tab_scored:
                                     </thead>
                                 <tbody>
                             """
+                            from datetime import timedelta
                             for comment in comments:
-                                date_str = comment.created_at.strftime('%b %d, %Y %H:%M')
+                                # Convert UTC from server/db to Indian Standard Time (IST)
+                                ist_time = comment.created_at + timedelta(hours=5, minutes=30)
+                                date_str = ist_time.strftime('%b %d, %Y<br>%H:%M IST')
                                 # Style role badge
                                 role_bg = "#690e0e"
                                 role_color = "#F5EAD0"
