@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
 from sqlalchemy.exc import OperationalError
-from database import init_db, open_session, JobPost, Candidate, User
+from database import init_db, open_session, JobPost, Candidate, User, Role
 from PIL import Image
 # ── Page config ───────────────────────────────────────────────────────────────
 import base64
@@ -484,7 +484,13 @@ div[data-testid="stColumn"]:nth-of-type(2) {
             else:
                 sess = open_session()
                 try:
-                    new_user = User(email=user_email, name=user_name, role=final_role)
+                    # Resolve role name to role_id from the roles table
+                    matched_role = sess.query(Role).filter_by(name=final_role).first()
+                    new_user = User(
+                        email=user_email, name=user_name,
+                        role=final_role,
+                        role_id=matched_role.id if matched_role else None,
+                    )
                     sess.add(new_user)
                     sess.commit()
                     sess.refresh(new_user)
@@ -492,6 +498,10 @@ div[data-testid="stColumn"]:nth-of-type(2) {
                     st.session_state.current_user_email = user_email
                     st.session_state.current_user_name  = user_name
                     st.session_state.current_user_role  = final_role
+                    if matched_role:
+                        st.session_state.user_permissions = [p.name for p in matched_role.permissions]
+                    else:
+                        st.session_state.user_permissions = []
                 except Exception as e:
                     sess.rollback()
                     st.error(f"Failed to save profile: {e}")
@@ -514,7 +524,11 @@ st.session_state.current_user_name  = db_user.name or user_name
 if DEVELOPER_EMAIL and user_email == DEVELOPER_EMAIL:
     st.session_state.current_user_role = "Admin"
 else:
-    st.session_state.current_user_role = db_user.role
+    # Use RBAC role relationship if available, fall back to legacy string
+    if db_user.role_rel:
+        st.session_state.current_user_role = db_user.role_rel.name
+    else:
+        st.session_state.current_user_role = db_user.role or "Recruiter"
 
 import utils
 utils.inject_global_css()

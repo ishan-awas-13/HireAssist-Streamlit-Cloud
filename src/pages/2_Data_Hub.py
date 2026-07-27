@@ -24,7 +24,7 @@ import utils
 
 # Require user login and Recruiter role before loading the page
 utils.require_login()
-utils.enforce_role(["Recruiter"], page_name="File Upload & AI Resume Parsing")
+utils.enforce_permission("upload_resumes", page_name="File Upload & AI Resume Parsing")
 
 from database import init_db, open_session, JobPost, Candidate
 from extractor import get_clean_resume_text

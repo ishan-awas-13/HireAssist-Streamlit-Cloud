@@ -17,7 +17,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from sqlalchemy import (
-    create_engine,
+    create_engine, Table,
     Column, Integer, String, Text, DateTime, Float, Boolean, ForeignKey
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -43,6 +43,63 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
+
+
+# ── RBAC Models ───────────────────────────────────────────────────────────────
+
+# Association table for many-to-many: roles <-> permissions
+role_permissions = Table(
+    "role_permissions",
+    Base.metadata,
+    Column("role_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
+    Column("permission_id", Integer, ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
+class Role(Base):
+    """
+    A named role (e.g. Recruiter, Hiring Manager, Admin).
+    `is_system` protects built-in roles from being deleted or renamed.
+    """
+    __tablename__ = "roles"
+
+    id          = Column(Integer, primary_key=True)
+    name        = Column(String(64), unique=True, nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    is_system   = Column(Boolean, default=False)
+
+    users       = relationship("User", back_populates="role_rel")
+    permissions = relationship(
+        "Permission",
+        secondary=role_permissions,
+        back_populates="roles",
+        lazy="joined",
+    )
+
+    def __repr__(self):
+        return f"<Role id={self.id} name='{self.name}'>"
+
+
+class Permission(Base):
+    """
+    A granular feature flag (e.g. create_job_posts, upload_resumes).
+    Pre-seeded at first run; admins toggle which roles hold which permissions.
+    """
+    __tablename__ = "permissions"
+
+    id           = Column(Integer, primary_key=True)
+    name         = Column(String(64), unique=True, nullable=False, index=True)
+    display_name = Column(String(128), nullable=False)
+    category     = Column(String(64), nullable=False)
+
+    roles = relationship(
+        "Role",
+        secondary=role_permissions,
+        back_populates="permissions",
+    )
+
+    def __repr__(self):
+        return f"<Permission name='{self.name}'>"
 
 
 # ── ORM Models ────────────────────────────────────────────────────────────────
@@ -119,8 +176,11 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
-    role = Column(String(64), default="Recruiter")
+    role = Column(String(64), default="Recruiter")          # legacy — kept for migration
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    role_rel = relationship("Role", back_populates="users", lazy="joined")
 
 
 class CandidateComment(Base):
