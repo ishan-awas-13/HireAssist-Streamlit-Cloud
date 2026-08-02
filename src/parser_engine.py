@@ -49,8 +49,7 @@ def parse_resume_text(model_name: str, raw_text: str) -> ResumeParserResponse:
         ],
         temperature=0.1,
         response_format={
-            "type": "json_object",
-            "schema": PYDANTIC_SCHEMA
+            "type": "json_object"
         }
     )
 
