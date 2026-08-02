@@ -82,7 +82,7 @@ def enforce_permission(permission_name: str, page_name: str = "this feature"):
                 You are currently signed in as <strong>{st.session_state.get("current_user_name", "User")}</strong> with the role <span style="background:#690e0e; color:#F5EAD0; padding:2px 8px; border-radius:10px; font-size:0.82rem; font-weight:700; text-transform:uppercase;">{user_role}</span>.
             </p>
             <p style="font-size: 0.95rem; color: #7a5c3a; line-height: 1.5; max-width: 550px; margin: 0 auto;">
-                <em>{page_name}</em> requires the <code>{permission_name}</code> permission, which is not assigned to your role.
+                Access to <em>{page_name}</em> is not included in your role's permissions.
             </p>
             <hr style="border: none; border-top: 1px solid #E5D0A0; margin: 25px auto; width: 60%;">
             <p style="font-size: 0.84rem; color: #888;">

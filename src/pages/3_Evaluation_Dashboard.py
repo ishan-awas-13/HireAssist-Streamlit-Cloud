@@ -11,7 +11,6 @@ This page is the migration target of the original monolithic app.py.
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import streamlit as st
 import time
 import json
@@ -418,10 +417,23 @@ def _render_profile_from_dict(profile_dict: dict):
         """, unsafe_allow_html=True)
 
     def link_field(label, url):
+        from urllib.parse import urlparse
+        import html
+        
         if url and str(url).strip() and str(url).lower() not in ["n/a", "none", "null"]:
-            href = url if str(url).startswith("http") else f"https://{url}"
-            html_link = f'<a href="{href}" target="_blank" style="color:#4a90e2; text-decoration:none; font-weight:600;">View Profile ↗</a>'
-            field(label, html_link)
+            url_str = str(url).strip()
+            parsed = urlparse(url_str)
+            if parsed.scheme not in ("http", "https"):
+                url_str = "https://" + url_str
+            
+            # Re-validate scheme to prevent javascript: URIs
+            parsed = urlparse(url_str)
+            if parsed.scheme in ("http", "https"):
+                safe_href = html.escape(url_str)
+                html_link = f'<a href="{safe_href}" target="_blank" rel="noopener noreferrer" style="color:#4a90e2; text-decoration:none; font-weight:600;">View Profile ↗</a>'
+                field(label, html_link)
+            else:
+                field(label, "N/A")
         else:
             field(label, "N/A")
 
@@ -886,17 +898,22 @@ with tab_scored:
                                 elif comment.author_role.lower() == "lead recruiter":
                                     role_bg = "#f0ad4e"
                                 
+                                import html
+                                safe_name = html.escape(comment.author_name)
+                                safe_role = html.escape(comment.author_role)
+                                safe_text = html.escape(comment.comment_text)
                                 table_html += f"""
                                         <tr style="border-bottom: 1px solid #E6D0A7; color: #2A1407;">
-                                            <td style="padding: 8px 12px; font-weight: 600;">{comment.author_name}</td>
+                                            <td style="padding: 8px 12px; font-weight: 600;">{safe_name}</td>
                                             <td style="padding: 8px 12px;">
                                                 <span style="background: {role_bg}; color: {role_color}; padding: 2px 6px; border-radius: 10px; font-size: 0.72rem; font-weight: bold; display: inline-block;">
-                                                    {comment.author_role}
+                                                    {safe_role}
                                                 </span>
                                             </td>
                                             <td style="padding: 8px 12px; font-size: 0.8rem; color: #7a5c3a;">{date_str}</td>
-                                            <td style="padding: 8px 12px; white-space: pre-wrap; line-height: 1.3;">{comment.comment_text}</td>
-                                        </tr>"""
+                                            <td style="padding: 8px 12px; white-space: pre-wrap; line-height: 1.3;">{safe_text}</td>
+                                        </tr>
+                            """
                             
                             table_html += """
                                     </tbody>

@@ -479,7 +479,7 @@ div[data-testid="stColumn"]:nth-of-type(2) {
         if st.button("Confirm & Enter HireAssist AI", type="primary", use_container_width=True, key="onboard_confirm_btn"):
             if not final_role:
                 st.error("Please enter a role before continuing.")
-            elif final_role.strip().lower() == "admin":
+            elif "admin" in final_role.strip().lower():
                 st.error("🚫 The Admin role cannot be self-assigned. Please select a functional role (Recruiter, Hiring Manager, or Interviewer).")
             else:
                 sess = open_session()

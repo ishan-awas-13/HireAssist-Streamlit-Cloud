@@ -26,6 +26,22 @@ from database import (
 Base.metadata.create_all(bind=engine)
 print("[✓] Tables created / verified.")
 
+# ---- 1.5 Securing the database by enabling RSL
+
+# this is to block public SUpabase API (PostgREST) from reading/editing tables
+#the python backend is already handling functionality so it is not needed anyway
+with engine.begin() as conn:
+    tables =[
+        "roles", "permissions", "role_permissions",
+        "users", "job_posts", "candidates", "candidate_comments"
+    ]
+
+    for table in tables:
+        conn.execute(text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;"))
+        
+    print("[✓] Row Level Security enabled for all tables.")
+
+
 # ── 2. Add role_id column to users if it doesn't exist (ALTER TABLE) ──────────
 inspector = inspect(engine)
 user_columns = [c["name"] for c in inspector.get_columns("users")]
