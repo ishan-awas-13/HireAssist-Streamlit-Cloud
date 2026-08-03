@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sqlalchemy import inspect, text
 from database import (
     engine, Base, SessionLocal,
-    Role, Permission, role_permissions, User,
+    Role, Permission, role_permissions, user_roles, User,
 )
 
 # ── 1. Create any new tables that don't exist yet ─────────────────────────────
@@ -32,7 +32,7 @@ print("[✓] Tables created / verified.")
 #the python backend is already handling functionality so it is not needed anyway
 with engine.begin() as conn:
     tables =[
-        "roles", "permissions", "role_permissions",
+        "roles", "permissions", "role_permissions", "user_roles",
         "users", "job_posts", "candidates", "candidate_comments"
     ]
 
@@ -139,21 +139,26 @@ try:
     session.commit()
     print(f"[✓] {len(role_map)} roles seeded with permission mappings.")
 
-    # ── 5. Migrate existing users ─────────────────────────────────────────────
-    users_without_role_id = session.query(User).filter(User.role_id.is_(None)).all()
+    # ── 5. Migrate existing users to user_roles many-to-many ──────────────────
+    all_users = session.query(User).all()
     migrated = 0
-    for u in users_without_role_id:
-        legacy = (u.role or "").strip()
-        matched_role = role_map.get(legacy)
+    for u in all_users:
+        if u.roles:  # already has roles via many-to-many
+            continue
+        # Try role_id FK first, then legacy string
+        if u.role_id:
+            matched_role = session.query(Role).filter_by(id=u.role_id).first()
+        else:
+            legacy = (u.role or "").strip()
+            matched_role = role_map.get(legacy)
         if not matched_role:
-            # Default unmapped users to Hiring Manager (read-only)
             matched_role = role_map.get("Hiring Manager")
-            print(f"  [!] User '{u.email}' had unknown role '{legacy}' → mapped to Hiring Manager")
-        u.role_id = matched_role.id
+            print(f"  [!] User '{u.email}' had unknown role → mapped to Hiring Manager")
+        u.roles.append(matched_role)
         migrated += 1
 
     session.commit()
-    print(f"[✓] Migrated {migrated} user(s) from legacy role string to role_id FK.")
+    print(f"[✓] Migrated {migrated} user(s) to user_roles many-to-many table.")
 
     print("\n══════════════════════════════════════")
     print("  RBAC seed complete. All systems go.")

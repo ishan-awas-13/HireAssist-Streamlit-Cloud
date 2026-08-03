@@ -102,16 +102,19 @@ def render_sidebar_profile():
     user_name   = st.user.name or user_email.split("@")[0]
     initials    = "".join(w[0] for w in user_name.split()[:2]).upper()
 
-    # Query role from DB and cache permissions
+    # Query role from DB and cache permissions (union across all assigned roles)
     session = open_session()
     role = "Recruiter"
     try:
         u = session.query(User).filter_by(email=user_email).first()
         if u:
-            # Use new RBAC relationship if role_id is set
-            if u.role_rel:
-                role = u.role_rel.name
-                st.session_state["user_permissions"] = [p.name for p in u.role_rel.permissions]
+            # Use new RBAC many-to-many relationship
+            if u.roles:
+                role = ", ".join(r.name for r in u.roles)
+                all_perms = set()
+                for r in u.roles:
+                    all_perms.update(p.name for p in r.permissions)
+                st.session_state["user_permissions"] = list(all_perms)
             else:
                 role = u.role or "Recruiter"
                 st.session_state["user_permissions"] = []
@@ -130,6 +133,7 @@ def render_sidebar_profile():
         session.close()
 
     st.session_state["current_user_role"] = role
+
 
     # ── CSS for avatar + dropdown (injected via st.markdown, no scripts needed) ─
     # NOTE: st.markdown() strips <script> tags, so only CSS goes here.

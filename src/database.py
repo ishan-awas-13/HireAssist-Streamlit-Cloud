@@ -55,6 +55,14 @@ role_permissions = Table(
     Column("permission_id", Integer, ForeignKey("permissions.id", ondelete="CASCADE"), primary_key=True),
 )
 
+# Association table for many-to-many: users <-> roles
+user_roles = Table(
+    "user_roles",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("role_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
+)
+
 
 class Role(Base):
     """
@@ -68,7 +76,7 @@ class Role(Base):
     description = Column(Text, nullable=True)
     is_system   = Column(Boolean, default=False)
 
-    users       = relationship("User", back_populates="role_rel")
+    users       = relationship("User", secondary=user_roles, back_populates="roles")
     permissions = relationship(
         "Permission",
         secondary=role_permissions,
@@ -177,10 +185,10 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
     role = Column(String(64), default="Recruiter")          # legacy — kept for migration
-    role_id = Column(Integer, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)  # legacy — kept for migration
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    role_rel = relationship("Role", back_populates="users", lazy="joined")
+    roles = relationship("Role", secondary=user_roles, back_populates="users", lazy="joined")
 
 
 class CandidateComment(Base):

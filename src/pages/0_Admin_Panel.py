@@ -136,8 +136,7 @@ try:
     users_data = [
         {
             "id": u.id, "email": u.email, "name": u.name,
-            "role_name": u.role_rel.name if u.role_rel else (u.role or "—"),
-            "role_id": u.role_id,
+            "role_names": sorted([r.name for r in u.roles]) if u.roles else [u.role or "—"],
             "created_at": u.created_at.strftime("%d %b %Y, %I:%M %p") if u.created_at else "—",
         }
         for u in all_users
@@ -180,23 +179,23 @@ role_name_list = [r["name"] for r in roles_data]
 # ─── TAB 1: User Assignment ──────────────────────────────────────────────────
 with tab_users:
     st.markdown("### Assign Roles to Users")
-    st.caption("Change any user's role using the dropdown. The developer account is protected from deletion.")
+    st.caption("Assign one or more roles to each user. Effective permissions are the **union** of all assigned roles.")
 
     if not users_data:
         st.info("No users registered yet.")
     else:
         # Table header
-        hdr_cols = st.columns([2, 2.5, 1.5, 1.5, 0.8])
+        hdr_cols = st.columns([2, 2.5, 2, 1.5, 0.8])
         hdr_cols[0].markdown("**Name**")
         hdr_cols[1].markdown("**Email**")
-        hdr_cols[2].markdown("**Role**")
+        hdr_cols[2].markdown("**Roles**")
         hdr_cols[3].markdown("**Registered**")
         hdr_cols[4].markdown("**Action**")
         st.divider()
 
         for user in users_data:
             is_dev = user["email"] == DEVELOPER_EMAIL
-            cols = st.columns([2, 2.5, 1.5, 1.5, 0.8])
+            cols = st.columns([2, 2.5, 2, 1.5, 0.8])
 
             with cols[0]:
                 prefix = "🛡️ " if is_dev else ""
@@ -206,21 +205,23 @@ with tab_users:
                 st.markdown(f"`{user['email']}`")
 
             with cols[2]:
-                current_idx = role_name_list.index(user["role_name"]) if user["role_name"] in role_name_list else 0
-                new_role = st.selectbox(
-                    "Role", options=role_name_list, index=current_idx,
+                current_roles = user["role_names"]
+                new_roles = st.multiselect(
+                    "Roles", options=role_name_list, default=[
+                        r for r in current_roles if r in role_name_list
+                    ],
                     key=f"role_select_{user['id']}", label_visibility="collapsed",
                 )
-                if new_role != user["role_name"]:
+                if sorted(new_roles) != sorted(current_roles):
                     s = open_session()
                     try:
-                        target_role = s.query(Role).filter_by(name=new_role).first()
                         target_user = s.query(User).filter_by(id=user["id"]).first()
-                        if target_role and target_user:
-                            target_user.role_id = target_role.id
-                            target_user.role = target_role.name  # keep legacy column in sync
+                        if target_user:
+                            resolved_roles = s.query(Role).filter(Role.name.in_(new_roles)).all()
+                            target_user.roles = resolved_roles
+                            target_user.role = ", ".join(new_roles) if new_roles else ""  # keep legacy in sync
                             s.commit()
-                            st.toast(f"✅ {user['name']} → {new_role}", icon="✅")
+                            st.toast(f"✅ {user['name']} → {', '.join(new_roles) or 'No roles'}", icon="✅")
                             st.rerun()
                     except Exception as e:
                         s.rollback()

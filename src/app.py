@@ -484,13 +484,14 @@ div[data-testid="stColumn"]:nth-of-type(2) {
             else:
                 sess = open_session()
                 try:
-                    # Resolve role name to role_id from the roles table
+                    # Resolve role name from the roles table
                     matched_role = sess.query(Role).filter_by(name=final_role).first()
                     new_user = User(
                         email=user_email, name=user_name,
                         role=final_role,
-                        role_id=matched_role.id if matched_role else None,
                     )
+                    if matched_role:
+                        new_user.roles.append(matched_role)
                     sess.add(new_user)
                     sess.commit()
                     sess.refresh(new_user)
@@ -524,9 +525,9 @@ st.session_state.current_user_name  = db_user.name or user_name
 if DEVELOPER_EMAIL and user_email == DEVELOPER_EMAIL:
     st.session_state.current_user_role = "Admin"
 else:
-    # Use RBAC role relationship if available, fall back to legacy string
-    if db_user.role_rel:
-        st.session_state.current_user_role = db_user.role_rel.name
+    # Use RBAC many-to-many roles relationship, fall back to legacy string
+    if db_user.roles:
+        st.session_state.current_user_role = ", ".join(r.name for r in db_user.roles)
     else:
         st.session_state.current_user_role = db_user.role or "Recruiter"
 
