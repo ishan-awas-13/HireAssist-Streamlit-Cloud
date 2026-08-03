@@ -136,7 +136,7 @@ try:
     users_data = [
         {
             "id": u.id, "email": u.email, "name": u.name,
-            "role_names": sorted([r.name for r in u.roles]) if u.roles else [u.role or "—"],
+            "role_names": sorted([r.name for r in u.roles]),
             "created_at": u.created_at.strftime("%d %b %Y, %I:%M %p") if u.created_at else "—",
         }
         for u in all_users
